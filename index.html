@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Excel转VCF工具</title>
+    <!-- XLSX 库 - 异步加载，支持多个备用源 -->
+    <script>
+        (function() {
+            const CDN_SOURCES = [
+                'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js',
+                'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
+            ];
+            
+            let currentIndex = 0;
+            
+            function loadScript(src) {
+                return new Promise((resolve, reject) => {
+                    if (typeof XLSX !== 'undefined') {
+                        resolve();
+                        return;
+                    }
+                    
+                    const script = document.createElement('script');
+                    script.src = src;
+                    script.async = true;
+                    
+                    script.onload = function() {
+                        console.log('✅ XLSX库加载成功:', src);
+                        resolve();
+                    };
+                    
+                    script.onerror = function() {
+                        console.warn('❌ CDN加载失败:', src);
+                        reject();
+                    };
+                    
+                    document.head.appendChild(script);
+                    
+                    // 设置超时（30秒）
+                    setTimeout(() => {
+                        if (typeof XLSX === 'undefined') {
+                            reject(new Error('加载超时'));
+                        }
+                    }, 30000);
+                });
+            }
+            
+            function tryLoadNext() {
+                if (currentIndex >= CDN_SOURCES.length) {
+                    console.error('所有CDN都加载失败');
+                    document.dispatchEvent(new CustomEvent('xlsx-load-failed'));
+                    return;
+                }
+                
+                loadScript(CDN_SOURCES[currentIndex])
+                    .then(() => {
+                        document.dispatchEvent(new CustomEvent('xlsx-loaded'));
+                    })
+                    .catch(() => {
+                        currentIndex++;
+                        setTimeout(tryLoadNext, 500); // 等待500ms后尝试下一个
+                    });
+            }
+            
+            // 开始加载
+            tryLoadNext();
+        })();
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+        }
+
+        .upload-area:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragover {
+            background: #e8ebff;
+            border-color: #764ba2;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 12px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .log-area {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            color: #333;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .log-area.active {
+            display: block;
+        }
+        
+        /* 上传区域增强视觉反馈 */
+        .upload-area.has-file {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+        
+        .upload-area.has-file .upload-text {
+            color: #2e7d32;
+        }
+
+        .log-line {
+            margin-bottom: 5px;
+            padding: 3px 0;
+        }
+
+        .log-success {
+            color: #28a745;
+        }
+
+        .log-error {
+            color: #dc3545;
+        }
+
+        .log-info {
+            color: #007bff;
+        }
+
+        .result-area {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result-area.active {
+            display: block;
+        }
+
+        .result-text {
+            color: #2e7d32;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: #1976d2;
+            margin-bottom: 8px;
+        }
+
+        .info-text {
+            color: #424242;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: white;
+            font-size: 12px;
+        }
+
+        /* 列映射区域样式 */
+        .mapping-area {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .mapping-area.active {
+            display: block;
+        }
+
+        .mapping-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .mapping-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            gap: 12px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .mapping-label {
+            min-width: 80px;
+            max-width: 120px;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 14px;
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .mapping-select {
+            flex: 1;
+            min-width: 0;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+            height: 42px;
+            box-sizing: border-box;
+            line-height: 20px;
+            margin: 0;
+            vertical-align: middle;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .mapping-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .mapping-required {
+            color: #dc3545;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .sample-data {
+            margin-top: 15px;
+            padding: 10px;
+            background: #fff3cd;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #856404;
+        }
+
+        .sample-data-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Excel转VCF工具</h1>
+        <div class="subtitle">快速将Excel联系人导入iPhone通讯录</div>
+
+        <div class="info-box">
+            <div class="info-title">📋 使用说明</div>
+            <div class="info-text">
+                1. 上传Excel文件（支持 .xlsx 和 .xls）<br>
+                2. 选择列映射关系（将Excel列映射到VCF字段）<br>
+                3. 确认映射并转换<br>
+                4. 下载VCF文件导入iPhone通讯录
+            </div>
+        </div>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">点击选择或拖拽Excel文件</div>
+            <div class="upload-hint">支持 .xlsx 和 .xls 格式</div>
+        </div>
+        <input type="file" id="fileInput" accept=".xlsx,.xls" />
+
+        <!-- 列映射区域 -->
+        <div class="mapping-area" id="mappingArea">
+            <div class="mapping-title">📋 请选择列映射关系</div>
+            <div id="mappingContent"></div>
+            <div class="sample-data" id="sampleData" style="display: none;">
+                <div class="sample-data-title">预览数据（第一行）：</div>
+                <div id="sampleDataContent"></div>
+            </div>
+            <button class="btn btn-primary" id="confirmMappingBtn" style="margin-top: 15px;">✅ 确认映射并转换</button>
+        </div>
+
+        <button class="btn btn-primary" id="convertBtn" disabled style="display: none;">🚀 开始转换</button>
+        
+        <div class="log-area" id="logArea"></div>
+
+        <div class="result-area" id="resultArea">
+            <div class="result-text">✅ 转换完成！</div>
+            <button class="btn btn-secondary" id="downloadBtn">📥 下载VCF文件</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        Excel转VCF工具 v1.0 | 支持iPhone/iPad
+    </div>
+
+    <script>
+        let workbook = null;
+        let vcfContent = '';
+        let fileName = '';
+        let excelColumns = [];
+        let excelData = [];
+        let columnMapping = {}; // 用户选择的映射关系
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const convertBtn = document.getElementById('convertBtn');
+        const logArea = document.getElementById('logArea');
+        const resultArea = document.getElementById('resultArea');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const mappingArea = document.getElementById('mappingArea');
+        const mappingContent = document.getElementById('mappingContent');
+        const sampleData = document.getElementById('sampleData');
+        const sampleDataContent = document.getElementById('sampleDataContent');
+        const confirmMappingBtn = document.getElementById('confirmMappingBtn');
+
+        // XLSX库加载状态
+        let xlsxLoaded = false;
+        let xlsxLoadFailed = false;
+
+        // 检查 XLSX 库是否加载
+        function checkXLSXLibrary() {
+            if (typeof XLSX !== 'undefined') {
+                xlsxLoaded = true;
+                console.log('✅ XLSX 库已加载');
+                return true;
+            }
+            return false;
+        }
+
+        // 监听XLSX库加载事件
+        document.addEventListener('xlsx-loaded', () => {
+            xlsxLoaded = true;
+            console.log('✅ XLSX库加载完成事件触发');
+            uploadArea.style.opacity = '1';
+            uploadArea.style.pointerEvents = 'auto';
+            uploadArea.querySelector('.upload-hint').textContent = '支持 .xlsx 和 .xls 格式';
+        });
+
+        document.addEventListener('xlsx-load-failed', () => {
+            xlsxLoadFailed = true;
+            console.error('❌ XLSX库加载失败');
+            uploadArea.style.opacity = '0.5';
+            uploadArea.style.pointerEvents = 'none';
+            uploadArea.querySelector('.upload-hint').innerHTML = 
+                '<span style="color: red;">⚠️ 库加载失败，请刷新页面或检查网络</span>';
+            alert('⚠️ Excel处理库加载失败！\n\n可能的原因：\n1. 网络连接问题\n2. CDN服务不可用\n\n建议：\n1. 刷新页面重试\n2. 检查网络连接\n3. 如果持续失败，可能需要使用代理或VPN');
+        });
+
+        // 页面加载后，定期检查库是否加载成功（最多等待10秒）
+        let checkCount = 0;
+        const maxChecks = 20; // 10秒
+        
+        window.addEventListener('load', () => {
+            const checkInterval = setInterval(() => {
+                checkCount++;
+                if (checkXLSXLibrary()) {
+                    clearInterval(checkInterval);
+                    document.dispatchEvent(new CustomEvent('xlsx-loaded'));
+                } else if (checkCount >= maxChecks) {
+                    clearInterval(checkInterval);
+                    if (!xlsxLoaded) {
+                        document.dispatchEvent(new CustomEvent('xlsx-load-failed'));
+                    }
+                }
+            }, 500); // 每500ms检查一次
+        });
+
+        // 上传区域点击
+        uploadArea.addEventListener('click', () => {
+            if (!checkXLSXLibrary()) return;
+            fileInput.click();
+        });
+
+        // 文件选择
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            console.log('选择的文件:', file);
+            if (file) {
+                handleFile(file);
+            } else {
+                console.log('未选择文件');
+            }
+        });
+
+        // 拖拽上传
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            console.log('拖拽文件:', files.length, '个文件');
+            
+            if (files.length === 0) {
+                alert('❌ 未检测到文件');
+                return;
+            }
+            
+            const file = files[0];
+            console.log('拖拽的文件:', file.name, file.type);
+            
+            if (file) {
+                handleFile(file);
+            } else {
+                alert('❌ 文件读取失败，请重试');
+            }
+        });
+
+        function handleFile(file) {
+            // 首先检查 XLSX 库是否可用
+            if (typeof XLSX === 'undefined' || !xlsxLoaded) {
+                alert('❌ Excel处理库未加载！\n\n可能原因：\n1. 网络连接问题\n2. 库仍在加载中\n\n建议：\n1. 等待几秒后重试\n2. 刷新页面\n3. 检查网络连接');
+                console.error('XLSX is not defined or not loaded yet');
+                return;
+            }
+            
+            // 验证文件类型
+            if (!file) {
+                alert('❌ 未选择文件');
+                return;
+            }
+            
+            const validExtensions = ['.xlsx', '.xls'];
+            const fileExt = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+            
+            if (!validExtensions.includes(fileExt)) {
+                alert('❌ 文件格式不支持！请选择 .xlsx 或 .xls 格式的Excel文件');
+                return;
+            }
+            
+            // 更新上传区域显示
+            uploadArea.classList.add('has-file');
+            uploadArea.querySelector('.upload-text').textContent = '✅ ' + file.name;
+            uploadArea.querySelector('.upload-hint').textContent = '文件已选择，正在处理...';
+            
+            fileName = file.name.replace(/\.(xlsx|xls)$/i, '');
+            
+            // 显示日志区域
+            logArea.classList.add('active');
+            logArea.innerHTML = '';
+            
+            log('📁 正在读取文件: ' + file.name, 'info');
+            console.log('处理文件:', file.name, file.size, 'bytes');
+            
+            const reader = new FileReader();
+            
+            // 添加错误处理
+            reader.onerror = (e) => {
+                console.error('文件读取错误:', e);
+                log('❌ 文件读取失败，请重试', 'error');
+                alert('文件读取失败，请检查文件是否损坏');
+            };
+            
+            reader.onload = (e) => {
+                try {
+                    console.log('文件读取完成，开始解析...');
+                    const data = new Uint8Array(e.target.result);
+                    log('📊 正在解析Excel数据...', 'info');
+                    
+                    workbook = XLSX.read(data, { type: 'array' });
+                    console.log('Excel解析成功，工作表:', workbook.SheetNames);
+                    log('✅ 文件读取成功', 'success');
+                    
+                    // 读取数据
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    excelData = XLSX.utils.sheet_to_json(worksheet);
+                    
+                    console.log('数据行数:', excelData.length);
+                    console.log('第一行数据:', excelData[0]);
+                    
+                    if (excelData.length === 0) {
+                        throw new Error('Excel文件为空或格式不正确');
+                    }
+                    
+                    // 获取所有列名
+                    excelColumns = Object.keys(excelData[0]);
+                    console.log('Excel列名:', excelColumns);
+                    log(`✅ 找到 ${excelData.length} 行数据，${excelColumns.length} 列`, 'success');
+                    
+                    // 显示映射界面
+                    showMappingInterface();
+                } catch (error) {
+                    console.error('处理文件时出错:', error);
+                    log('❌ 处理失败: ' + error.message, 'error');
+                    alert('文件处理失败：' + error.message + '\n\n请检查：\n1. 文件是否为有效的Excel格式\n2. 文件是否包含数据\n3. 浏览器控制台查看详细错误');
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 显示列映射界面
+        function showMappingInterface() {
+            // 定义VCF字段
+            const vcfFields = [
+                { key: 'name', label: '姓名', required: true, icon: '👤' },
+                { key: 'phone', label: '电话', required: false, icon: '📞' },
+                { key: 'mobile', label: '手机', required: false, icon: '📱' },
+                { key: 'email', label: '邮箱', required: false, icon: '📧' },
+                { key: 'company', label: '公司', required: false, icon: '🏢' },
+                { key: 'title', label: '职位', required: false, icon: '💼' },
+                { key: 'address', label: '地址', required: false, icon: '📍' },
+                { key: 'note', label: '备注', required: false, icon: '📝' }
+            ];
+
+            let html = '';
+            
+            // 为每个VCF字段创建选择器
+            vcfFields.forEach(field => {
+                html += `
+                    <div class="mapping-row">
+                        <div class="mapping-label">
+                            ${field.icon} ${field.label}
+                            ${field.required ? '<span class="mapping-required">*</span>' : ''}
+                        </div>
+                        <select class="mapping-select" data-field="${field.key}" id="mapping_${field.key}">
+                            <option value="">-- 请选择Excel列 --</option>
+                            ${excelColumns.map(col => 
+                                `<option value="${col}">${col}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                `;
+            });
+            
+            mappingContent.innerHTML = html;
+            mappingArea.classList.add('active');
+            
+            // 尝试自动识别并预选
+            autoDetectMapping(vcfFields);
+            
+            // 显示数据预览
+            showDataPreview();
+        }
+
+        // 自动识别列映射
+        function autoDetectMapping(vcfFields) {
+            const namePatterns = {
+                'name': ['姓名', 'name', 'Name', '名字', '联系人', 'Full Name', 'fullname', 'full_name'],
+                'phone': ['电话', 'phone', 'Phone', '电话号', 'Tel', 'TEL', 'tel', 'telephone'],
+                'mobile': ['手机', 'mobile', 'Mobile', '手机号', '手机号码', 'cell', 'Cell'],
+                'email': ['邮箱', 'email', 'Email', '邮件', '电子邮箱', 'mail', 'Mail'],
+                'company': ['公司', 'company', 'Company', '单位', '工作单位', 'org', 'organization'],
+                'title': ['职位', 'title', 'Title', '职务', '职称', 'position', 'Position'],
+                'address': ['地址', 'address', 'Address', '住址', 'addr'],
+                'note': ['备注', 'note', 'Note', '说明', '注释', 'comments', 'remark']
+            };
+
+            vcfFields.forEach(field => {
+                const patterns = namePatterns[field.key] || [];
+                const select = document.getElementById(`mapping_${field.key}`);
+                
+                if (select) {
+                    // 查找匹配的列
+                    for (let col of excelColumns) {
+                        const colLower = col.toLowerCase().trim();
+                        if (patterns.some(pattern => colLower.includes(pattern.toLowerCase()) || col === pattern)) {
+                            select.value = col;
+                            break;
+                        }
+                    }
+                }
+            });
+        }
+
+        // 显示数据预览
+        function showDataPreview() {
+            if (excelData.length > 0) {
+                const firstRow = excelData[0];
+                let previewHtml = '';
+                
+                excelColumns.forEach(col => {
+                    const value = firstRow[col];
+                    previewHtml += `<strong>${col}:</strong> ${value || '(空)'} &nbsp;&nbsp;`;
+                });
+                
+                sampleDataContent.innerHTML = previewHtml;
+                sampleData.style.display = 'block';
+            }
+        }
+
+        // 确认映射并转换
+        confirmMappingBtn.addEventListener('click', () => {
+            // 收集映射关系
+            columnMapping = {};
+            const selects = mappingArea.querySelectorAll('.mapping-select');
+            
+            selects.forEach(select => {
+                const field = select.dataset.field;
+                const column = select.value;
+                if (column) {
+                    columnMapping[field] = column;
+                }
+            });
+            
+            // 验证必填字段
+            const nameMapping = columnMapping['name'];
+            if (!nameMapping) {
+                alert('⚠️ 请至少选择"姓名"列的映射！');
+                return;
+            }
+            
+            // 隐藏映射界面，开始转换
+            mappingArea.classList.remove('active');
+            performConvert();
+        });
+
+        // 执行转换（使用用户选择的映射）
+        function performConvert() {
+            if (!workbook || !excelData || excelData.length === 0) return;
+            
+            logArea.classList.add('active');
+            logArea.innerHTML = '';
+            
+            log('开始转换...', 'info');
+            log(`找到 ${excelData.length} 行数据`, 'info');
+            
+            try {
+                // 使用用户选择的映射关系
+                const nameCol = columnMapping['name'];
+                if (!nameCol) {
+                    throw new Error('未选择姓名列的映射');
+                }
+                
+                // 生成VCF
+                vcfContent = '';
+                let count = 0;
+                
+                excelData.forEach((row, index) => {
+                    const name = String(row[nameCol] || '').trim();
+                    if (!name || name === 'undefined' || name === 'null' || name === '' || name === 'NaN') {
+                        return;
+                    }
+                    
+                    // 开始一个VCard
+                    vcfContent += 'BEGIN:VCARD\n';
+                    vcfContent += 'VERSION:3.0\n';
+                    
+                    // 处理姓名（FN字段：全名）
+                    vcfContent += `FN:${name}\n`;
+                    
+                    // 处理姓名（N字段：姓;名;;;）
+                    const nameParts = name.split(/\s+/);
+                    if (nameParts.length >= 2) {
+                        const lastName = nameParts[0];
+                        const firstName = nameParts.slice(1).join(' ');
+                        vcfContent += `N:${lastName};${firstName};;;\n`;
+                    } else {
+                        vcfContent += `N:;${name};;;\n`;
+                    }
+                    
+                    // 电话（优先使用phone，如果没有则用mobile）
+                    let phoneCol = columnMapping['phone'] || columnMapping['mobile'];
+                    if (phoneCol && row[phoneCol]) {
+                        const phone = String(row[phoneCol]).trim();
+                        if (phone && phone !== 'undefined' && phone !== 'null' && phone !== 'NaN') {
+                            vcfContent += `TEL;TYPE=WORK,VOICE:${phone}\n`;
+                        }
+                    }
+                    
+                    // 手机（如果和phone不同）
+                    if (columnMapping['mobile'] && columnMapping['mobile'] !== phoneCol) {
+                        const mobile = String(row[columnMapping['mobile']] || '').trim();
+                        if (mobile && mobile !== 'undefined' && mobile !== 'null' && mobile !== 'NaN') {
+                            vcfContent += `TEL;TYPE=CELL:${mobile}\n`;
+                        }
+                    }
+                    
+                    // 邮箱
+                    if (columnMapping['email'] && row[columnMapping['email']]) {
+                        const email = String(row[columnMapping['email']]).trim();
+                        if (email && email.includes('@') && email !== 'undefined' && email !== 'null') {
+                            vcfContent += `EMAIL;TYPE=INTERNET:${email}\n`;
+                        }
+                    }
+                    
+                    // 公司
+                    if (columnMapping['company'] && row[columnMapping['company']]) {
+                        const company = String(row[columnMapping['company']]).trim();
+                        if (company && company !== 'undefined' && company !== 'null' && company !== 'NaN') {
+                            vcfContent += `ORG:${company}\n`;
+                        }
+                    }
+                    
+                    // 职位
+                    if (columnMapping['title'] && row[columnMapping['title']]) {
+                        const title = String(row[columnMapping['title']]).trim();
+                        if (title && title !== 'undefined' && title !== 'null' && title !== 'NaN') {
+                            vcfContent += `TITLE:${title}\n`;
+                        }
+                    }
+                    
+                    // 地址
+                    if (columnMapping['address'] && row[columnMapping['address']]) {
+                        const address = String(row[columnMapping['address']]).trim();
+                        if (address && address !== 'undefined' && address !== 'null' && address !== 'NaN') {
+                            vcfContent += `ADR;TYPE=HOME:;;${address};;;;\n`;
+                        }
+                    }
+                    
+                    // 备注
+                    if (columnMapping['note'] && row[columnMapping['note']]) {
+                        const note = String(row[columnMapping['note']]).trim();
+                        if (note && note !== 'undefined' && note !== 'null' && note !== 'NaN') {
+                            vcfContent += `NOTE:${note}\n`;
+                        }
+                    }
+                    
+                    // 结束VCard
+                    vcfContent += 'END:VCARD\n\n';
+                    count++;
+                });
+                
+                log(`✅ 成功转换 ${count} 个联系人`, 'success');
+                resultArea.classList.add('active');
+                
+            } catch (error) {
+                log('❌ 转换失败: ' + error.message, 'error');
+                alert('转换失败：' + error.message);
+            }
+        }
+
+        // 旧的转换按钮（已废弃，保留以防万一）
+        convertBtn.addEventListener('click', () => {
+            if (!workbook) return;
+            
+            logArea.classList.add('active');
+            logArea.innerHTML = '';
+            convertBtn.disabled = true;
+            
+            log('开始转换...', 'info');
+            
+            try {
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const data = XLSX.utils.sheet_to_json(worksheet);
+                
+                if (data.length === 0) {
+                    throw new Error('Excel文件为空');
+                }
+                
+                log(`找到 ${data.length} 行数据`, 'info');
+                
+                // 查找列名
+                const findColumn = (row, possibleNames) => {
+                    for (let name of possibleNames) {
+                        if (row.hasOwnProperty(name)) return name;
+                    }
+                    return null;
+                };
+                
+                const nameCol = findColumn(data[0], ['姓名', 'name', 'Name', '名字', '联系人', 'Full Name']) || 
+                               Object.keys(data[0])[0];
+                
+                const phoneCol = findColumn(data[0], ['手机', 'mobile', 'Mobile', '电话', 'phone', 'Phone', '电话号', '手机号']);
+                const emailCol = findColumn(data[0], ['邮箱', 'email', 'Email', '邮件', '电子邮箱']);
+                const companyCol = findColumn(data[0], ['公司', 'company', 'Company', '单位', '工作单位']);
+                const titleCol = findColumn(data[0], ['职位', 'title', 'Title', '职务', '职称']);
+                
+                log(`识别列名: 姓名=${nameCol}, 手机=${phoneCol || '无'}, 邮箱=${emailCol || '无'}`, 'info');
+                
+                // 生成VCF
+                vcfContent = '';
+                let count = 0;
+                
+                data.forEach((row, index) => {
+                    const name = String(row[nameCol] || '').trim();
+                    if (!name || name === 'undefined' || name === 'null' || name === '') {
+                        return;
+                    }
+                    
+                    vcfContent += 'BEGIN:VCARD\n';
+                    vcfContent += 'VERSION:3.0\n';
+                    vcfContent += `FN:${name}\n`;
+                    vcfContent += `N:;${name};;;\n`;
+                    
+                    if (phoneCol && row[phoneCol]) {
+                        const phone = String(row[phoneCol]).trim();
+                        if (phone) {
+                            vcfContent += `TEL;TYPE=CELL:${phone}\n`;
+                        }
+                    }
+                    
+                    if (emailCol && row[emailCol]) {
+                        const email = String(row[emailCol]).trim();
+                        if (email && email.includes('@')) {
+                            vcfContent += `EMAIL;TYPE=INTERNET:${email}\n`;
+                        }
+                    }
+                    
+                    if (companyCol && row[companyCol]) {
+                        const company = String(row[companyCol]).trim();
+                        if (company) {
+                            vcfContent += `ORG:${company}\n`;
+                        }
+                    }
+                    
+                    if (titleCol && row[titleCol]) {
+                        const title = String(row[titleCol]).trim();
+                        if (title) {
+                            vcfContent += `TITLE:${title}\n`;
+                        }
+                    }
+                    
+                    vcfContent += 'END:VCARD\n\n';
+                    count++;
+                });
+                
+                log(`✅ 成功转换 ${count} 个联系人`, 'success');
+                resultArea.classList.add('active');
+                
+            } catch (error) {
+                log('❌ 转换失败: ' + error.message, 'error');
+            } finally {
+                convertBtn.disabled = false;
+            }
+        });
+
+        // 下载
+        downloadBtn.addEventListener('click', () => {
+            const blob = new Blob([vcfContent], { type: 'text/vcard;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName + '.vcf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            log('文件已下载，可在iPhone上导入通讯录', 'success');
+        });
+
+        function log(message, type = 'info') {
+            const line = document.createElement('div');
+            line.className = 'log-line log-' + type;
+            line.textContent = message;
+            logArea.appendChild(line);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+    </script>
+</body>
+</html>
+
