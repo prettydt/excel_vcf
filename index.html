@@ -6,6 +6,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Excel转VCF工具</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="快速将Excel联系人转换为VCF格式，支持导入iPhone通讯录">
+    <link rel="manifest" href="/excel2Vcard/manifest.webmanifest">
+    <link rel="icon" type="image/png" sizes="192x192" href="/excel2Vcard/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/excel2Vcard/icon-512.png">
+    <link rel="apple-touch-icon" href="/excel2Vcard/icon-512.png">
     <!-- XLSX 库 - 异步加载，支持多个备用源 -->
     <script>
         (function() {
@@ -972,6 +980,40 @@
             line.textContent = message;
             logArea.appendChild(line);
             logArea.scrollTop = logArea.scrollHeight;
+        }
+    </script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/excel2Vcard/service-worker.js')
+                    .then((registration) => {
+                        console.log('[PWA] Service Worker registered successfully:', registration.scope);
+                        
+                        // Handle updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New service worker available, prompt user to refresh
+                                    if (confirm('有新版本可用，是否立即更新？')) {
+                                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.log('[PWA] Service Worker registration failed:', error);
+                    });
+                
+                // Reload page when new service worker takes control
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    window.location.reload();
+                });
+            });
         }
     </script>
 </body>
