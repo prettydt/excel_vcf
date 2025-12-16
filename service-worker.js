@@ -99,14 +99,21 @@ self.addEventListener('fetch', (event) => {
             if (networkResponse && networkResponse.status === 200) {
               const responseClone = networkResponse.clone();
               caches.open(CACHE_NAME).then((cache) => {
-                cache.put(request, responseClone);
+                cache.put(request, responseClone).catch((error) => {
+                  console.error('[SW] Failed to cache resource:', error);
+                });
               });
             }
             return networkResponse;
           })
-          .catch(() => {
+          .catch((error) => {
+            console.log('[SW] Network request failed:', error);
             // Network failed, return cached response if available
-            return cachedResponse;
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            // If no cached response, throw error to propagate
+            throw error;
           });
 
         // Return cached response immediately if available, otherwise wait for network
