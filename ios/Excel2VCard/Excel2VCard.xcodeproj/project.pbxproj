@@ -7,64 +7,64 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A10000001234567890000001 /* Excel2VCardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000001234567890000001 /* Excel2VCardApp.swift */; };
-		A10000001234567890000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000001234567890000002 /* ContentView.swift */; };
-		A10000001234567890000003 /* ExcelParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000001234567890000003 /* ExcelParser.swift */; };
-		A10000001234567890000004 /* ContactExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000001234567890000004 /* ContactExporter.swift */; };
-		A10000001234567890000005 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000001234567890000005 /* Models.swift */; };
-		A10000001234567890000006 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000001234567890000006 /* Assets.xcassets */; };
-		A10000001234567890000007 /* CoreXLSX in Frameworks */ = {isa = PBXBuildFile; productRef = A30000001234567890000001 /* CoreXLSX */; };
+		796F8D274D5D47E6B7D1CAD4 /* Excel2VCardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1968635B67E42F38EFBE442 /* Excel2VCardApp.swift */; };
+		25EF3297A91341259169C12D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E341C58C9E34C2585A83B2A /* ContentView.swift */; };
+		9508C2380D2642ABAE964D10 /* ExcelParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9BAA47E4BDF4E12BA3B0EC3 /* ExcelParser.swift */; };
+		5091DE4C7286493EB738B90E /* ContactExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534414D2CD1444B89EA04F93 /* ContactExporter.swift */; };
+		B1896E04213446F1940B4ECA /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DD263DB6794B0DB3F14628 /* Models.swift */; };
+		0DD51542803A457DAC0B9124 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D64FBFDFC8284A44B29A5635 /* Assets.xcassets */; };
+		91288437E8F24C16BBC86B83 /* CoreXLSX in Frameworks */ = {isa = PBXBuildFile; productRef = 8527AABB24494D79AEEBDC37 /* CoreXLSX */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A40000001234567890000001 /* Excel2VCard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Excel2VCard.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A20000001234567890000001 /* Excel2VCardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Excel2VCardApp.swift; sourceTree = "<group>"; };
-		A20000001234567890000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		A20000001234567890000003 /* ExcelParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExcelParser.swift; sourceTree = "<group>"; };
-		A20000001234567890000004 /* ContactExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactExporter.swift; sourceTree = "<group>"; };
-		A20000001234567890000005 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
-		A20000001234567890000006 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A20000001234567890000007 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		003BF222988C41B69A265CD6 /* Excel2VCard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Excel2VCard.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1968635B67E42F38EFBE442 /* Excel2VCardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Excel2VCardApp.swift; sourceTree = "<group>"; };
+		3E341C58C9E34C2585A83B2A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		E9BAA47E4BDF4E12BA3B0EC3 /* ExcelParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExcelParser.swift; sourceTree = "<group>"; };
+		534414D2CD1444B89EA04F93 /* ContactExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactExporter.swift; sourceTree = "<group>"; };
+		B0DD263DB6794B0DB3F14628 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		D64FBFDFC8284A44B29A5635 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6EED3009B43B4A89A98208C3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		A50000001234567890000001 /* Frameworks */ = {
+		EB2FF68EE80E43D2B1821ED8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A10000001234567890000007 /* CoreXLSX in Frameworks */,
+				91288437E8F24C16BBC86B83 /* CoreXLSX in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A60000001234567890000001 = {
+		15C87628DA8A466FB6A762EE = {
 			isa = PBXGroup;
 			children = (
-				A60000001234567890000002 /* Excel2VCard */,
-				A60000001234567890000003 /* Products */,
+				6834B9210A3641809B0173D6 /* Excel2VCard */,
+				53C00E5C0DC14CEDA36564B6 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		A60000001234567890000002 /* Excel2VCard */ = {
+		6834B9210A3641809B0173D6 /* Excel2VCard */ = {
 			isa = PBXGroup;
 			children = (
-				A20000001234567890000001 /* Excel2VCardApp.swift */,
-				A20000001234567890000002 /* ContentView.swift */,
-				A20000001234567890000003 /* ExcelParser.swift */,
-				A20000001234567890000004 /* ContactExporter.swift */,
-				A20000001234567890000005 /* Models.swift */,
-				A20000001234567890000006 /* Assets.xcassets */,
-				A20000001234567890000007 /* Info.plist */,
+				E1968635B67E42F38EFBE442 /* Excel2VCardApp.swift */,
+				3E341C58C9E34C2585A83B2A /* ContentView.swift */,
+				E9BAA47E4BDF4E12BA3B0EC3 /* ExcelParser.swift */,
+				534414D2CD1444B89EA04F93 /* ContactExporter.swift */,
+				B0DD263DB6794B0DB3F14628 /* Models.swift */,
+				D64FBFDFC8284A44B29A5635 /* Assets.xcassets */,
+				6EED3009B43B4A89A98208C3 /* Info.plist */,
 			);
 			path = Excel2VCard;
 			sourceTree = "<group>";
 		};
-		A60000001234567890000003 /* Products */ = {
+		53C00E5C0DC14CEDA36564B6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A40000001234567890000001 /* Excel2VCard.app */,
+				003BF222988C41B69A265CD6 /* Excel2VCard.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -72,13 +72,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A70000001234567890000001 /* Excel2VCard */ = {
+		8E68F30EE9EB49E0AD436B85 /* Excel2VCard */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A80000001234567890000001 /* Build configuration list for PBXNativeTarget "Excel2VCard" */;
+			buildConfigurationList = B1FC7040A6EB4E4FA2DEA8A7 /* Build configuration list for PBXNativeTarget "Excel2VCard" */;
 			buildPhases = (
-				A90000001234567890000001 /* Sources */,
-				A50000001234567890000001 /* Frameworks */,
-				AA00000012345678900000001 /* Resources */,
+				A9D1A79BC3A3439F94563AC8 /* Sources */,
+				EB2FF68EE80E43D2B1821ED8 /* Frameworks */,
+				61B1D248F5A74BD5A1A57AAA1 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -86,28 +86,28 @@
 			);
 			name = Excel2VCard;
 			packageProductDependencies = (
-				A30000001234567890000001 /* CoreXLSX */,
+				8527AABB24494D79AEEBDC37 /* CoreXLSX */,
 			);
 			productName = Excel2VCard;
-			productReference = A40000001234567890000001 /* Excel2VCard.app */;
+			productReference = 003BF222988C41B69A265CD6 /* Excel2VCard.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		AB00000012345678900000001 /* Project object */ = {
+		3F69359E9B65475BBC0FCA431 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
-					A70000001234567890000001 = {
+					8E68F30EE9EB49E0AD436B85 = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
 			};
-			buildConfigurationList = AC00000012345678900000001 /* Build configuration list for PBXProject "Excel2VCard" */;
+			buildConfigurationList = 87BAE5D7F1F34A428343556E1 /* Build configuration list for PBXProject "Excel2VCard" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = zh-Hans;
 			hasScannedForEncodings = 0;
@@ -115,47 +115,47 @@
 				en,
 				zh-Hans,
 			);
-			mainGroup = A60000001234567890000001;
+			mainGroup = 15C87628DA8A466FB6A762EE;
 			packageReferences = (
-				A30000001234567890000002 /* XCRemoteSwiftPackageReference "CoreXLSX" */,
+				535D9D61E95F4F6CAAC4C6F2 /* XCRemoteSwiftPackageReference "CoreXLSX" */,
 			);
-			productRefGroup = A60000001234567890000003 /* Products */;
+			productRefGroup = 53C00E5C0DC14CEDA36564B6 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A70000001234567890000001 /* Excel2VCard */,
+				8E68F30EE9EB49E0AD436B85 /* Excel2VCard */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		AA00000012345678900000001 /* Resources */ = {
+		61B1D248F5A74BD5A1A57AAA1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A10000001234567890000006 /* Assets.xcassets in Resources */,
+				0DD51542803A457DAC0B9124 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		A90000001234567890000001 /* Sources */ = {
+		A9D1A79BC3A3439F94563AC8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A10000001234567890000001 /* Excel2VCardApp.swift in Sources */,
-				A10000001234567890000002 /* ContentView.swift in Sources */,
-				A10000001234567890000003 /* ExcelParser.swift in Sources */,
-				A10000001234567890000004 /* ContactExporter.swift in Sources */,
-				A10000001234567890000005 /* Models.swift in Sources */,
+				796F8D274D5D47E6B7D1CAD4 /* Excel2VCardApp.swift in Sources */,
+				25EF3297A91341259169C12D /* ContentView.swift in Sources */,
+				9508C2380D2642ABAE964D10 /* ExcelParser.swift in Sources */,
+				5091DE4C7286493EB738B90E /* ContactExporter.swift in Sources */,
+				B1896E04213446F1940B4ECA /* Models.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		AD00000012345678900000001 /* Debug */ = {
+		B3E6A84612AB468684D3EF861 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -218,7 +218,7 @@
 			};
 			name = Debug;
 		};
-		AD00000012345678900000002 /* Release */ = {
+		B3E6A84612AB468684D3EF862 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -274,7 +274,7 @@
 			};
 			name = Release;
 		};
-		AE00000012345678900000001 /* Debug */ = {
+		6468F7AFB4D24E2C8A1FD8F11 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -304,7 +304,7 @@
 			};
 			name = Debug;
 		};
-		AE00000012345678900000002 /* Release */ = {
+		6468F7AFB4D24E2C8A1FD8F12 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -337,20 +337,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AC00000012345678900000001 /* Build configuration list for PBXProject "Excel2VCard" */ = {
+		87BAE5D7F1F34A428343556E1 /* Build configuration list for PBXProject "Excel2VCard" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				AD00000012345678900000001 /* Debug */,
-				AD00000012345678900000002 /* Release */,
+				B3E6A84612AB468684D3EF861 /* Debug */,
+				B3E6A84612AB468684D3EF862 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A80000001234567890000001 /* Build configuration list for PBXNativeTarget "Excel2VCard" */ = {
+		B1FC7040A6EB4E4FA2DEA8A7 /* Build configuration list for PBXNativeTarget "Excel2VCard" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				AE00000012345678900000001 /* Debug */,
-				AE00000012345678900000002 /* Release */,
+				6468F7AFB4D24E2C8A1FD8F11 /* Debug */,
+				6468F7AFB4D24E2C8A1FD8F12 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -358,7 +358,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		A30000001234567890000002 /* XCRemoteSwiftPackageReference "CoreXLSX" */ = {
+		535D9D61E95F4F6CAAC4C6F2 /* XCRemoteSwiftPackageReference "CoreXLSX" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/CoreOffice/CoreXLSX.git";
 			requirement = {
@@ -369,12 +369,12 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		A30000001234567890000001 /* CoreXLSX */ = {
+		8527AABB24494D79AEEBDC37 /* CoreXLSX */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = A30000001234567890000002 /* XCRemoteSwiftPackageReference "CoreXLSX" */;
+			package = 535D9D61E95F4F6CAAC4C6F2 /* XCRemoteSwiftPackageReference "CoreXLSX" */;
 			productName = CoreXLSX;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = AB00000012345678900000001 /* Project object */;
+	rootObject = 3F69359E9B65475BBC0FCA431 /* Project object */;
 }

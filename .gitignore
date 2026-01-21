@@ -94,3 +94,11 @@ iOSInjectionProject/
 
 ## OS files
 .DS_Store
+
+## Xcode project backup files
+*.pbxproj.backup
+
+## Python cache
+__pycache__/
+*.py[cod]
+*$py.class
