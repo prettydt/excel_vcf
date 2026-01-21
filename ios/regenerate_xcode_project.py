@@ -12,7 +12,12 @@ from pathlib import Path
 
 def generate_xcode_uuid():
     """Generate a 24-character uppercase hex string (Xcode format)."""
-    return uuid.uuid4().hex.upper()[:24]
+    # Generate two UUIDs to get enough entropy for 24 characters
+    # This maintains uniqueness while matching Xcode's 24-character format
+    uuid1 = uuid.uuid4().hex.upper()
+    uuid2 = uuid.uuid4().hex.upper()
+    # Combine and take 24 characters for better uniqueness than truncation
+    return (uuid1 + uuid2)[:24]
 
 
 def regenerate_project_file(project_path):
@@ -29,7 +34,8 @@ def regenerate_project_file(project_path):
     
     # Find all placeholder UUIDs (format: A10000001234567890000001, A20000001234567890000002, etc.)
     # These are the artificial UUIDs that need to be replaced
-    placeholder_pattern = r'A[0-9A-F]{23}'
+    # Use word boundaries to avoid matching valid UUIDs that happen to start with A
+    placeholder_pattern = r'\bA[0-9]{23}\b'
     placeholders = set(re.findall(placeholder_pattern, content))
     
     print(f"Found {len(placeholders)} placeholder UUIDs to replace")

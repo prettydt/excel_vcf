@@ -105,4 +105,4 @@ After running the script, you should:
 
 ## Version History
 
-- **v1.0** (2026-01): Initial version - regenerates project with proper UUIDs
+- **v1.0** (2025-12): Initial version - regenerates project with proper UUIDs
