@@ -97,3 +97,8 @@ iOSInjectionProject/
 
 ## Xcode project backup files
 *.pbxproj.backup
+
+## Python cache
+__pycache__/
+*.py[cod]
+*$py.class
