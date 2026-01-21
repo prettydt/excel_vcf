@@ -94,3 +94,6 @@ iOSInjectionProject/
 
 ## OS files
 .DS_Store
+
+## Xcode project backup files
+*.pbxproj.backup
