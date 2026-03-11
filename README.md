@@ -1,5 +1,23 @@
 # excel_vcf
 
+## Code Comment Notes
+
+To improve maintainability, concise inline comments were added in [index.html](index.html) around the most failure-prone and core business logic sections.
+
+### Commented Areas
+
+- **XLSX loading and fallback flow**: explains CDN fallback and polling checks after page load.
+- **File parsing pipeline**: clarifies dependency checks and first-sheet JSON extraction.
+- **Column auto-mapping**: documents fuzzy matching strategy for Chinese/English headers.
+- **VCF generation process**: highlights required fields, invalid-row filtering, and name handling for `FN`/`N`.
+- **Download handling**: notes Blob URL cleanup to avoid memory leaks.
+
+### Maintenance Guidance
+
+- Keep comments focused on *why* a branch exists, not line-by-line restatement.
+- Update nearby comments when changing validation rules (e.g., empty value filtering).
+- If new VCF fields are added, document mapping and output behavior in both code and this README.
+
 ## PWA Support
 
 This site now includes Progressive Web App (PWA) support, allowing users to install it on their devices and use it offline.

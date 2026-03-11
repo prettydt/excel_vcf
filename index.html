@@ -428,6 +428,7 @@
     </div>
 
     <script>
+        // 当前会话的处理状态
         let workbook = null;
         let vcfContent = '';
         let fileName = '';
@@ -480,7 +481,7 @@
             alert('⚠️ Excel处理库加载失败！\n\n可能的原因：\n1. 网络连接问题\n2. CDN服务不可用\n\n建议：\n1. 刷新页面重试\n2. 检查网络连接\n3. 如果持续失败，可能需要使用代理或VPN');
         });
 
-        // 页面加载后，定期检查库是否加载成功（最多等待10秒）
+        // 页面加载后轮询检测 XLSX 是否可用，避免首屏网络抖动导致的误报
         let checkCount = 0;
         const maxChecks = 20; // 10秒
         
@@ -550,7 +551,7 @@
         });
 
         function handleFile(file) {
-            // 首先检查 XLSX 库是否可用
+            // 先校验依赖，再进入文件解析流程
             if (typeof XLSX === 'undefined' || !xlsxLoaded) {
                 alert('❌ Excel处理库未加载！\n\n可能原因：\n1. 网络连接问题\n2. 库仍在加载中\n\n建议：\n1. 等待几秒后重试\n2. 刷新页面\n3. 检查网络连接');
                 console.error('XLSX is not defined or not loaded yet');
@@ -604,7 +605,7 @@
                     console.log('Excel解析成功，工作表:', workbook.SheetNames);
                     log('✅ 文件读取成功', 'success');
                     
-                    // 读取数据
+                    // 只读取第一个工作表，并转成对象数组（首行作为字段名）
                     const sheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[sheetName];
                     excelData = XLSX.utils.sheet_to_json(worksheet);
@@ -677,7 +678,7 @@
             showDataPreview();
         }
 
-        // 自动识别列映射
+        // 自动识别列映射：按常见中英文列名做模糊匹配，减少手工选择
         function autoDetectMapping(vcfFields) {
             const namePatterns = {
                 'name': ['姓名', 'name', 'Name', '名字', '联系人', 'Full Name', 'fullname', 'full_name'],
@@ -749,7 +750,7 @@
             performConvert();
         });
 
-        // 执行转换（使用用户选择的映射）
+        // 执行转换（使用用户确认后的列映射）
         function performConvert() {
             if (!workbook || !excelData || excelData.length === 0) return;
             
@@ -760,7 +761,7 @@
             log(`找到 ${excelData.length} 行数据`, 'info');
             
             try {
-                // 使用用户选择的映射关系
+                // 姓名是最小必需字段，没有姓名就无法生成有效联系人
                 const nameCol = columnMapping['name'];
                 if (!nameCol) {
                     throw new Error('未选择姓名列的映射');
@@ -771,6 +772,7 @@
                 let count = 0;
                 
                 excelData.forEach((row, index) => {
+                    // 跳过空姓名或脏值，避免生成无效 vCard
                     const name = String(row[nameCol] || '').trim();
                     if (!name || name === 'undefined' || name === 'null' || name === '' || name === 'NaN') {
                         return;
@@ -783,7 +785,7 @@
                     // 处理姓名（FN字段：全名）
                     vcfContent += `FN:${name}\n`;
                     
-                    // 处理姓名（N字段：姓;名;;;）
+                    // 处理姓名（N字段：姓;名;;;）。中文姓名通常无法可靠拆分，这里仅做基础空格分割
                     const nameParts = name.split(/\s+/);
                     if (nameParts.length >= 2) {
                         const lastName = nameParts[0];
@@ -960,7 +962,7 @@
             }
         });
 
-        // 下载
+        // 通过 Blob 触发浏览器下载，下载后释放 URL 避免内存泄漏
         downloadBtn.addEventListener('click', () => {
             const blob = new Blob([vcfContent], { type: 'text/vcard;charset=utf-8' });
             const url = URL.createObjectURL(blob);
